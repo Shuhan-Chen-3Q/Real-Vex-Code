@@ -129,18 +129,20 @@ void moveRobot(float Desired_distance){
 
 void turnAngle(float desired_angle){
 	imu.reset();
-	pros::delay(2000);
-	float error = 298379;
-	while (fabs(error) > 0.1){
-		float angle = rescale180(imu.get_heading(), false);
+	pros::delay(3000);
+	float error = 298379; 
+	while (fabs(error) > 1){
+		float angle = rescale180(imu.get_heading(),false);
 		error = desired_angle - angle;
 		float kp = 2;
 		float speed = error * kp;
+			std::string errorStr = std::to_string(error);
+			pros::lcd::set_text(0,errorStr);
 
-		Rightback.move(speed);
-		Rightfront.move(speed);
-		Leftback.move(-speed);
-		Leftfront.move(-speed);
+		Rightback.move(-speed);
+		Rightfront.move(-speed);
+		Leftback.move(speed);                                                                              
+		Leftfront.move(speed);
 		pros::delay(20);
 	}
 	Rightback.move(0);
@@ -174,13 +176,29 @@ void SimplemoveRobot(float Desired_Time){
 	Rightup.brake();
 	Leftup.brake();
 }
+void SimpleturnRobot(float Desired_Angle)
+{
+    Rightfront.move(127);
+    Rightback.move(127);
+    Rightup.move(127);
+    Leftfront.move(-127);
+    Leftback.move(-127);
+    Leftup.move(-127);
+    pros::delay(Desired_Angle*3);
+    Rightfront.brake();
+    Leftfront.brake();
+    Rightback.brake();
+    Leftback.brake();
+    Rightup.brake();
+    Leftup.brake();
+}
 
 void autonomous() {
-	turnAngle(360);
-    pros::delay(10);
+	turnAngle(-45);
+	pros::delay(10);
     moveRobot(35);
     pros::delay(15);
-    turnAngle(50);
+    turnAngle(-50);
     pros::delay(10);
     moveRobot(45);
     pros::delay(10);
@@ -237,7 +255,7 @@ void opcontrol() {
 		float total_speed_right = linearSpeed - angularSpeed;
 
 		if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-			Intake.move(-127   );
+			Intake.move(-127);
 		}
 		else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
 			Intake.move(127);
